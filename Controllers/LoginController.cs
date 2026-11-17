@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using projeto.Database;
 using projeto.Security;
 using projeto.Service;
 
@@ -7,16 +6,14 @@ namespace projeto.Controllers;
 
 public class LoginController(
     UserService userService,
-    Jwt jwt,
-    MigrationExecutor migrationExecutor) : Controller
+    Jwt jwt
+    ) : Controller
 {
     private readonly UserService _userService = userService;
     private readonly Jwt _jwt = jwt;
-    private readonly MigrationExecutor _migrationExecutor = migrationExecutor;
 
     public IActionResult Index()
     {
-        _migrationExecutor.Init();
         return View();
     }
 

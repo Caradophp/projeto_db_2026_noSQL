@@ -1,4 +1,6 @@
-using Oracle.ManagedDataAccess.Client;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using projeto.Models;
 
 namespace projeto.Repository;
 
@@ -10,56 +12,40 @@ public class CodeRepository(IConfiguration configuration)
             "A string de conexão 'OracleDb' não foi configurada."
         );
 
-    public void SaveCode(int code, int idUser)
+    private readonly IMongoCollection<Code> _collection = new MongoClient("mongodb://admin:123@localhost:27017/?authSource=admin")
+        .GetDatabase("cultiva")
+        .GetCollection<Code>("codes");
+
+    public void SaveCode(int code, ObjectId idUser)
     {
-        string sql = @"
-            INSERT INTO CODES_SENT (CODE, ID_USER)
-            VALUES (:Code, :IdUser)";
+        var codeToSave = new Code
+        {
+            Id = ObjectId.GenerateNewId(),
+            Value = code,
+            UserId = idUser,
+            ExpirationAt = DateTime.Now
+        };
 
-        using var connection = new OracleConnection(_connectionString);
-        using var command = new OracleCommand(sql, connection);
-
-        command.Parameters.Add("Code", code);
-        command.Parameters.Add("IdUser", idUser);
-
-        connection.Open();
-        command.ExecuteNonQuery();
+        _collection.InsertOne(codeToSave);
     }
 
-    public bool CheckIfCodeIsValid(int code, int idUser)
+    public bool CheckIfCodeIsValid(int code, ObjectId idUser)
     {
-        string sql = @"
-            SELECT 1
-            FROM CODES_SENT
-            WHERE CODE = :Code
-              AND ID_USER = :IdUser
-              AND EXPIRATION_AT > CURRENT_TIMESTAMP";
+        var codeFound = _collection.Find<Code>(c => c.Value == code && c.ExpirationAt > DateTime.Now)
+            .Limit(1)
+            .First();
 
-        using var connection = new OracleConnection(_connectionString);
-        using var command = new OracleCommand(sql, connection);
-
-        command.Parameters.Add("Code", code);
-        command.Parameters.Add("IdUser", idUser);
-
-        connection.Open();
-
-        using var reader = command.ExecuteReader();
-
-        return reader.Read();
+        if (codeFound != null)
+        {
+            return true;
+        } else
+        {
+            return false;
+        }
     }
 
-    public void DeleteCodesByUser(int idUser)
+    public void DeleteCodesByUser(ObjectId idUser)
     {
-        string sql = @"
-            DELETE FROM CODES_SENT
-            WHERE ID_USER = :IdUser";
-
-        using var connection = new OracleConnection(_connectionString);
-        using var command = new OracleCommand(sql, connection);
-
-        command.Parameters.Add("IdUser", idUser);
-
-        connection.Open();
-        command.ExecuteNonQuery();
+        _collection.DeleteMany(c => c.UserId == idUser);
     }
 }

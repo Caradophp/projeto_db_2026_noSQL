@@ -3,7 +3,6 @@ using projeto.Controllers;
 using projeto.Repository;
 using projeto.Security;
 using projeto.Service;
-using projeto.Database;
 
 DotNetEnv.Env.Load();
 DotNetEnv.Env.TraversePath().Load();
@@ -36,14 +35,14 @@ try
     builder.Services.AddScoped<UtilRepository>();
     builder.Services.AddScoped<EmailService>();
     builder.Services.AddScoped<InsumoService>();
-builder.Services.AddScoped<AplicacaoInsumoService>();
-builder.Services.AddScoped<AplicacaoInsumoRepository>();
+    builder.Services.AddScoped<AplicacaoInsumoService>();
+    builder.Services.AddScoped<AplicacaoInsumoRepository>();
     builder.Services.AddScoped<PropriedadeService>();
     builder.Services.AddScoped<TalhaoService>();
     builder.Services.AddScoped<CulturaService>();
-builder.Services.AddScoped<PlantioService>();
-builder.Services.AddScoped<PlantioRepository>();
-builder.Services.AddScoped<InsumoRepository>();
+    builder.Services.AddScoped<PlantioService>();
+    builder.Services.AddScoped<PlantioRepository>();
+    builder.Services.AddScoped<InsumoRepository>();
     builder.Services.AddScoped<CulturaRepository>();
     builder.Services.AddScoped<TalhaoRepository>();
     builder.Services.AddScoped<PropriedadeRepository>();
@@ -51,7 +50,6 @@ builder.Services.AddScoped<InsumoRepository>();
     builder.Services.AddScoped<UserService>();
     builder.Services.AddScoped<Jwt>();
     builder.Services.AddScoped<EncryptionService>();
-    builder.Services.AddScoped<MigrationExecutor>();
 
     builder.Services.AddExceptionHandler<ExceptionController>();
     builder.Services.AddControllers(options =>

@@ -1,6 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Mvc;
-using projeto.Database;
 using projeto.Security;
 
 namespace projeto.Reports;
@@ -9,11 +8,10 @@ namespace projeto.Reports;
 public sealed class ReportsController(
     IConfiguration configuration,
     Jwt jwt,
-    IWebHostEnvironment environment,
-    MigrationExecutor migrationExecutor) : Controller
+    IWebHostEnvironment environment
+) : Controller
 {
     private readonly ReportService _reportService = new(configuration);
-    private readonly MigrationExecutor _migrationExecutor = migrationExecutor;
 
     [HttpGet]
     public IActionResult Index()
@@ -24,7 +22,6 @@ public sealed class ReportsController(
             throw new FileNotFoundException("O visualizador dos relatórios não foi encontrado.");
         }
 
-        _migrationExecutor.Init();
         return View("Index");
     }
 

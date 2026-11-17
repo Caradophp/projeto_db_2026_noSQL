@@ -8,7 +8,8 @@ namespace projeto.Service;
 public class UserService(
     UserRepository userRepository,
     CodeRepository codeRepository,
-    EmailService emailService)
+    EmailService emailService
+    )
 {
     private readonly UserRepository _userRepository = userRepository;
     private readonly CodeRepository _codeRepository = codeRepository;
@@ -52,12 +53,12 @@ public class UserService(
             Password = password
         };
 
-        return _userRepository.CreateUser(user);
+        return userRepository.CreateUser(user);
     }
 
     public bool CheckUserLogin(string email, string password)
     {
-        User? user = _userRepository.CheckUserLogin(email, password);
+        User? user = userRepository.CheckUserLogin(email, password);
 
         if (user != null)
         {
@@ -81,13 +82,8 @@ public class UserService(
 
     public void SendEmailForRetrivePassword(string email)
     {
-        User? user = _userRepository.FindByEmail(email);
-
-        if (user == null)
-        {
-            throw new Exception("E-mail não cadastrado no sistema.");
-        }
-
+        User? user = _userRepository.FindByEmail(email) ?? throw new Exception("E-mail não cadastrado no sistema.");
+        
         int randomCode = RandomNumberGenerator.GetInt32(
             100000,
             1000000
@@ -188,8 +184,7 @@ public class UserService(
 
         _userRepository.ChangePass(
             email,
-            password,
-            true
+            password
         );
 
         _codeRepository.DeleteCodesByUser(user.Id);

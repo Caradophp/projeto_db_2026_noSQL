@@ -1,3 +1,4 @@
+using MongoDB.Bson;
 using Oracle.ManagedDataAccess.Client;
 
 namespace projeto.Repository;
@@ -8,7 +9,7 @@ public class AuditoriaRepository(IConfiguration configuration)
      private readonly string _connectionString = configuration.GetConnectionString("OracleDb")
         ?? throw new InvalidOperationException("A string de conexão 'OracleDb' não foi configurada.");
 
-    public void RegisterAudit(string action, int userId)
+    public void RegisterAudit(string action, ObjectId userId)
     {
         string sql = "INSERT INTO auditoria (acao, user_id) VALUES (:Action, :UserId)";
 

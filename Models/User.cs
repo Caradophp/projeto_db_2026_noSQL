@@ -1,3 +1,4 @@
+using MongoDB.Bson;
 using projeto.Models.Enums;
 
 namespace projeto.Models;
@@ -5,7 +6,7 @@ namespace projeto.Models;
 public class User
 {
     
-    public int Id { get; set; }
+    public ObjectId Id { get; set; }
     public required string Name { get; set; } 
 
     public required string Email { get; set;}

@@ -1,12 +1,13 @@
 services:
-  oracle_db:
-    image: gvenzl/oracle-free
+  mongodb:
+    image: mongo
     ports:
-      - "1521:1521"
+      - "27017:27017"
     environment: 
-      - ORACLE_PASSWORD=123
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=123
     volumes:
-      - data:/opt/oracle/oradata
+      - data:/data/db
 
 volumes:
   data:

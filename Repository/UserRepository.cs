@@ -1,144 +1,64 @@
-using Microsoft.AspNetCore.Mvc;
-using Oracle.ManagedDataAccess.Client;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using projeto.Models;
-using projeto.Models.Enums;
 using projeto.Service;
-using Microsoft.Extensions.Logging;
 
 namespace projeto.Repository;
 
-public class UserRepository(IConfiguration configuration, EncryptionService encryptionService, ILogger<UserRepository> logger, AuditoriaRepository auditoriaRepository, UtilRepository utilRepository)
+public class UserRepository(EncryptionService encryptionService)
 {
-    private readonly string _connectionString = configuration.GetConnectionString("OracleDb")
-        ?? throw new InvalidOperationException("A string de conexão 'OracleDb' não foi configurada.");
+    private readonly IMongoCollection<User> _collection = new MongoClient("mongodb://admin:123@localhost:27017/?authSource=admin")
+        .GetDatabase("cultiva")
+        .GetCollection<User>("users");
 
-    private readonly AuditoriaRepository _auditoriaRepository = auditoriaRepository;
-    private readonly UtilRepository _utilRepository = utilRepository;
+    private readonly EncryptionService _encryptionService = encryptionService;
 
     public bool CreateUser(User user)
     {
-        string hashedPassword = encryptionService.HashPassword(user.Password);
-
-        string sql = "INSERT INTO users (name, email, password) VALUES (:Name, :Email, :Password)";
-
-        using (var connection = new OracleConnection(_connectionString))
-        {
-            using var command = new OracleCommand(sql, connection);
-            command.Parameters.Add(new OracleParameter("Name", user.Name));
-            command.Parameters.Add(new OracleParameter("Email", user.Email));
-            command.Parameters.Add(new OracleParameter("Password", hashedPassword));
-
-            connection.Open();
-            int rowsAffected = command.ExecuteNonQuery();
-
-
-            Decimal userId = (Decimal) _utilRepository.ListBy("users", "t.email = :Email", [new Util.Parametro(){
-                Chave = "Email",
-                Valor = user.Email
-            }])[0][0];
-            _auditoriaRepository.RegisterAudit("Cadastrou-se no sistema", ((int)userId));
-
-            return rowsAffected > 0;
-        }
+        string hashedPassword = _encryptionService.HashPassword(user.Password);
+        var id = ObjectId.GenerateNewId();
+        user.Id = id;
+        user.Password = hashedPassword;
+        _collection.InsertOne(user);
+        return true;
     }
-
+    
     public User? CheckUserLogin(string email, string password)
     {
-        string sql = "SELECT u.id, u.name, u.email, u.password, u.status, u.created_at FROM users u WHERE u.email = :Email";
+        var user = _collection.Find(u => u.Email == email).Limit(1).First();
 
-        using var connection = new OracleConnection(_connectionString);
-        using var command = new OracleCommand(sql, connection);
-        command.Parameters.Add(new OracleParameter("Email", email));
-
-        connection.Open();
-
-        using OracleDataReader reader = command.ExecuteReader();
-        if (reader.Read())
+        if (!_encryptionService.VerifyPassword(password, user.Password))
         {
-            User user = new()
-            {
-                Id = reader.GetInt32(0),
-                Name = reader.GetString(1),
-                Email = reader.GetString(2),
-                Password = reader.GetString(3),
-                Status = Enum.Parse<UserStatusEnum>(reader.GetString(4), ignoreCase: true),
-                CreatedAt = reader.GetDateTime(5)
-            };
-
-            if (encryptionService.VerifyPassword(password, user.Password))
-            {
-                _auditoriaRepository.RegisterAudit("Logou no sistema", user.Id);
-                return user;
-            }
-
-            if (user.Password == password)
-            {
-                ChangePass(user.Email, password, true);
-                return user;
-            }
+            return null;
         }
 
-        logger.LogWarning("Tentativa de login falhou para o usuário: {Email}", email);
-        return null;
+        return user;
+
     }
 
     public User? FindByEmail(string email)
     {
-        string sql = "SELECT id, name, email, password FROM users u WHERE u.email = :Email";
-
-        using var connection = new OracleConnection(_connectionString);
-        using var command = new OracleCommand(sql, connection);
-        command.Parameters.Add(new OracleParameter("Email", email));
-
-        connection.Open();
-        using OracleDataReader reader = command.ExecuteReader();
-
-        if (reader.Read())
-        {
-            return new User
-            {
-                Id = (int)reader.GetInt64(0),
-                Name = reader.GetString(1),
-                Email = reader.GetString(2),
-                Password = reader.GetString(3)
-            };
-        }
-
-        return null;
+        var user = _collection.Find(u => u.Email == email).Limit(1).First();
+        return user;
     }
 
     public bool ExistsByEmail(string email)
     {
-        string sql = "SELECT 1 FROM users u WHERE u.email = :Email";
+       var user = _collection.Find(u => u.Email == email).Limit(1).First();
 
-        using var connection = new OracleConnection(_connectionString);
-        using var command = new OracleCommand(sql, connection);
-        command.Parameters.Add(new OracleParameter("Email", email));
-
-        connection.Open();
-        using OracleDataReader reader = command.ExecuteReader();
-
-        return reader.Read();
+        return user != null;
     }
 
-    public void ChangePass(string email, string newPassword, bool needOpenConnection)
+
+    public void ChangePass(string email, string newPassword)
     {
         User? userExists = this.FindByEmail(email) ?? throw new Exception("E-mail informado é inválido");
 
         string hashedPassword = encryptionService.HashPassword(newPassword);
 
-        string sql = "UPDATE USERS SET PASSWORD = :Password WHERE ID = :IdUser";
-
-        using var connection = new OracleConnection(_connectionString);
-        using var command = new OracleCommand(sql, connection);
-
-        command.Parameters.Add(new OracleParameter("Password", hashedPassword));
-        command.Parameters.Add(new OracleParameter("IdUser", userExists.Id));
-
-        if (needOpenConnection) {
-            connection.Open();
-        }
-        command.ExecuteNonQuery();
-        _auditoriaRepository.RegisterAudit("Alterou senha", userExists.Id);
+        _collection.UpdateOne(
+            u => u.Email == email,
+            Builders<User>.Update.Set(u => u.Password, hashedPassword));
     }
+
 }
