@@ -1,137 +1,44 @@
-using Oracle.ManagedDataAccess.Client;
 using projeto.Models;
-using Microsoft.Extensions.Configuration;
+using MongoDB.Driver;
+using MongoDB.Bson;
 
 namespace projeto.Repository;
 
-public class CulturaRepository(IConfiguration configuration)
+public class CulturaRepository()
 {
-    private readonly string _connectionString = configuration.GetConnectionString("OracleDb")
-        ?? throw new InvalidOperationException("A string de conexão 'OracleDb' não foi configurada.");
+   private readonly IMongoCollection<Cultura> _collection = new MongoClient("mongodb://admin:123@localhost:27017/?authSource=admin")
+        .GetDatabase("cultiva")
+        .GetCollection<Cultura>("culturas");
 
     public IEnumerable<Cultura> GetAll()
     {
         var lista = new List<Cultura>();
-
-        const string sql = """
-            SELECT ID, NOME, DESCRICAO
-            FROM CULTURA
-            ORDER BY NOME
-            """;
-
-        using var connection = new OracleConnection(_connectionString);
-        using var command = new OracleCommand(sql, connection);
-
-        connection.Open();
-
-        using var reader = command.ExecuteReader();
-
-        while (reader.Read())
-        {
-            lista.Add(new Cultura
-            {
-                Id = Convert.ToInt32(reader["ID"]),
-                Nome = reader["NOME"].ToString() ?? string.Empty,
-                Descricao = reader["DESCRICAO"] == DBNull.Value
-                    ? null
-                    : reader["DESCRICAO"].ToString()
-            });
-        }
-
+        lista.AddRange(_collection.Find(cultura => true).ToList());
         return lista;
     }
 
-    public Cultura? GetById(int id)
+    public Cultura? GetById(ObjectId id)
     {
-        const string sql = """
-            SELECT ID, NOME, DESCRICAO
-            FROM CULTURA
-            WHERE ID = :pId
-            """;
-
-        using var connection = new OracleConnection(_connectionString);
-        using var command = new OracleCommand(sql, connection);
-
-        command.Parameters.Add(new OracleParameter("pId", id));
-
-        connection.Open();
-
-        using var reader = command.ExecuteReader();
-
-        if (!reader.Read())
-        {
-            return null;
-        }
-
-        return new Cultura
-        {
-            Id = Convert.ToInt32(reader["ID"]),
-            Nome = reader["NOME"].ToString() ?? string.Empty,
-            Descricao = reader["DESCRICAO"] == DBNull.Value
-                ? null
-                : reader["DESCRICAO"].ToString()
-        };
+        return _collection.Find(cultura => cultura.Id == id).First();
     }
 
     public bool Create(Cultura cultura)
     {
-        const string sql = """
-            INSERT INTO CULTURA (NOME, DESCRICAO)
-            VALUES (:pNome, :pDescricao)
-            """;
 
-        using var connection = new OracleConnection(_connectionString);
-        using var command = new OracleCommand(sql, connection);
-
-        command.Parameters.Add(new OracleParameter("pNome", cultura.Nome));
-        command.Parameters.Add(new OracleParameter(
-            "pDescricao",
-            (object?)cultura.Descricao ?? DBNull.Value
-        ));
-
-        connection.Open();
-
-        return command.ExecuteNonQuery() > 0;
+        cultura.Id = ObjectId.GenerateNewId();
+        _collection.InsertOne(cultura);
+        return true;
     }
 
     public bool Update(Cultura cultura)
     {
-        const string sql = """
-            UPDATE CULTURA
-            SET NOME = :pNome,
-                DESCRICAO = :pDescricao
-            WHERE ID = :pId
-            """;
-
-        using var connection = new OracleConnection(_connectionString);
-        using var command = new OracleCommand(sql, connection);
-
-        command.Parameters.Add(new OracleParameter("pNome", cultura.Nome));
-        command.Parameters.Add(new OracleParameter(
-            "pDescricao",
-            (object?)cultura.Descricao ?? DBNull.Value
-        ));
-        command.Parameters.Add(new OracleParameter("pId", cultura.Id));
-
-        connection.Open();
-
-        return command.ExecuteNonQuery() > 0;
+        _collection.ReplaceOne(c => c.Id == cultura.Id, cultura);
+        return true;
     }
 
-    public bool Delete(int id)
+    public bool Delete(ObjectId id)
     {
-        const string sql = """
-            DELETE FROM CULTURA
-            WHERE ID = :pId
-            """;
-
-        using var connection = new OracleConnection(_connectionString);
-        using var command = new OracleCommand(sql, connection);
-
-        command.Parameters.Add(new OracleParameter("pId", id));
-
-        connection.Open();
-
-        return command.ExecuteNonQuery() > 0;
+        _collection.DeleteOne(cultura => cultura.Id == id);
+        return true;
     }
 }
