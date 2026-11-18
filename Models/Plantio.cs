@@ -1,10 +1,12 @@
+using MongoDB.Bson;
+
 namespace projeto.Models;
 
 public class Plantio
 {
-    public int Id { get; set; }
-    public int TalhaoId { get; set; }
-    public int CulturaId { get; set; }
+    public ObjectId Id { get; set; }
+    public ObjectId TalhaoId { get; set; }
+    public ObjectId CulturaId { get; set; }
     public DateTime DataPlantio { get; set; }
     public DateTime? DataPrevistaColheita { get; set; }
     public decimal? ProdutividadeEstimada { get; set; }
