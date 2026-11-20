@@ -17,7 +17,7 @@ public class CulturaRepository()
         return lista;
     }
 
-    public Cultura? GetById(ObjectId id)
+    public Cultura? GetById(string id)
     {
         return _collection.Find(cultura => cultura.Id == id).First();
     }
@@ -25,7 +25,7 @@ public class CulturaRepository()
     public bool Create(Cultura cultura)
     {
 
-        cultura.Id = ObjectId.GenerateNewId();
+        cultura.Id = ObjectId.GenerateNewId().ToString();
         _collection.InsertOne(cultura);
         return true;
     }
@@ -36,7 +36,7 @@ public class CulturaRepository()
         return true;
     }
 
-    public bool Delete(ObjectId id)
+    public bool Delete(string id)
     {
         _collection.DeleteOne(cultura => cultura.Id == id);
         return true;

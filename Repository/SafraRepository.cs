@@ -17,7 +17,7 @@ public class SafraRepository()
         return lista;
     }
 
-    public Safra? GetById(ObjectId id)
+    public Safra? GetById(string id)
     {
         var safra = _collection.Find(safra => safra.Id == id).First();
         return safra;
@@ -25,7 +25,7 @@ public class SafraRepository()
 
     public bool Create(Safra safra)
     {
-        safra.Id = ObjectId.GenerateNewId();
+        safra.Id = ObjectId.GenerateNewId().ToString();
         _collection.InsertOne(safra);
         return true;
     }
@@ -36,7 +36,7 @@ public class SafraRepository()
         return true;
     }
 
-    public bool Delete(ObjectId id)
+    public bool Delete(string id)
     {
         _collection.DeleteOne(safra => safra.Id == id);
         return true;

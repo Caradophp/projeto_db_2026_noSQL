@@ -17,14 +17,14 @@ public class PlantioRepository()
         return lista;
     }
 
-    public Plantio? GetById(ObjectId id)
+    public Plantio? GetById(string id)
     {
         return _collection.Find(plantio => plantio.Id == id).First();
     }
 
     public bool Create(Plantio plantio)
     {
-        plantio.Id = ObjectId.GenerateNewId();
+        plantio.Id = ObjectId.GenerateNewId().ToString();
         _collection.InsertOne(plantio);
         return true;
     }
@@ -35,7 +35,7 @@ public class PlantioRepository()
         return true;
     }
 
-    public bool Delete(ObjectId id)
+    public bool Delete(string id)
     {
         _collection.DeleteOne(plantio => plantio.Id == id);
         return true;

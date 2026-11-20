@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using projeto.Models;
 using projeto.Service;
 
@@ -26,7 +27,7 @@ public IActionResult Index()
     }
 
     [HttpGet]
-    public IActionResult GetById(int id)
+    public IActionResult GetById(string id)
     {
         var colheita = _colheitaService.GetById(id);
 
@@ -93,7 +94,7 @@ public IActionResult Index()
     }
 
     [HttpPost]
-    public IActionResult Delete(int id)
+    public IActionResult Delete(string id)
     {
         try
         {

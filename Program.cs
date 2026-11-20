@@ -24,15 +24,13 @@ try
 
     // Add services to the container.
     builder.Services.AddControllersWithViews();
-
-    builder.Services.AddScoped<projeto.Controllers.ColheitaController>();
+    
+    builder.Services.AddScoped<ColheitaController>();
     builder.Services.AddScoped<ColheitaRepository>();
     builder.Services.AddScoped<ColheitaService>();
-    builder.Services.AddScoped<AuditoriaRepository>();
     builder.Services.AddScoped<HomeService>();
     builder.Services.AddScoped<HomeRepository>();
     builder.Services.AddScoped<CodeRepository>();
-    builder.Services.AddScoped<UtilRepository>();
     builder.Services.AddScoped<EmailService>();
     builder.Services.AddScoped<InsumoService>();
     builder.Services.AddScoped<AplicacaoInsumoService>();

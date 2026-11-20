@@ -17,14 +17,14 @@ public class PropriedadeRepository()
         return lista;
     }
 
-    public Propriedade? GetById(ObjectId id)
+    public Propriedade? GetById(string id)
     {
         return _collection.Find(propriedade => propriedade.Id == id).First();
     }
 
     public bool Create(Propriedade prop)
     {
-        prop.Id = ObjectId.GenerateNewId();
+        prop.Id = ObjectId.GenerateNewId().ToString();
         _collection.InsertOne(prop);
         return true;
     }
@@ -36,7 +36,7 @@ public class PropriedadeRepository()
         return true;
     }
 
-    public bool Delete(ObjectId id)
+    public bool Delete(string id)
     {
         _collection.DeleteOne(prop => prop.Id == id);
         return true;

@@ -17,14 +17,14 @@ public class TalhaoRepository()
         return lista;
     }
 
-    public Talhao? GetById(ObjectId id)
+    public Talhao? GetById(string id)
     {
         return _collection.Find(talhao => talhao.Id == id).First();
     }
 
     public bool Create(Talhao talhao)
     {
-        talhao.Id = ObjectId.GenerateNewId();
+        talhao.Id = ObjectId.GenerateNewId().ToString();
         _collection.InsertOne(talhao);
         return true;
     }
@@ -35,7 +35,7 @@ public class TalhaoRepository()
         return true;
     }
 
-    public bool Delete(ObjectId id)
+    public bool Delete(string id)
     {
        _collection.DeleteOne(talhao => talhao.Id == id);
        return true;

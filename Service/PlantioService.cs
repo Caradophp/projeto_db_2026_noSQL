@@ -1,3 +1,4 @@
+using MongoDB.Bson;
 using projeto.Models;
 using projeto.Repository;
 
@@ -12,7 +13,7 @@ public class PlantioService(PlantioRepository plantioRepository)
         return _plantioRepository.GetAll();
     }
 
-    public Plantio? GetById(int id)
+    public Plantio? GetById(string id)
     {
         return _plantioRepository.GetById(id);
     }
@@ -30,7 +31,7 @@ public class PlantioService(PlantioRepository plantioRepository)
         return _plantioRepository.Update(plantio);
     }
 
-    public bool Remove(int id)
+    public bool Remove(string id)
     {
         return _plantioRepository.Delete(id);
     }

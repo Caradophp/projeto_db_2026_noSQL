@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using projeto.Models;
 using projeto.Service;
 
 namespace projeto.Controllers;
@@ -21,6 +22,14 @@ public class UserController (UserService userService) : Controller
         _userService.CreateUser(name, email, password, confirmPassword);
         HttpContext.Response.WriteAsJsonAsync("sucesso");
         //return RedirectToAction("Index", "Login");
+    }
+
+    [HttpGet]
+    public IActionResult FindById(string id)
+    {
+        var user = _userService.FindById(id);
+        return Json(user);
+        
     }
 
 }

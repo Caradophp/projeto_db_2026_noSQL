@@ -17,14 +17,14 @@ public class InsumoRepository()
         return insumos;
     }
 
-    public Insumo? GetById(ObjectId id)
+    public Insumo? GetById(string id)
     {
         return _collection.Find(insumo => insumo.Id == id).First();
     }
 
     public bool Create(Insumo insumo)
     {
-        insumo.Id = ObjectId.GenerateNewId();
+        insumo.Id = ObjectId.GenerateNewId().ToString();
         _collection.InsertOne(insumo);
         return true;
     }
@@ -36,7 +36,7 @@ public class InsumoRepository()
         return true;
     }
 
-    public bool Delete(ObjectId id)
+    public bool Delete(string id)
     {
         _collection.DeleteOne(insumo => insumo.Id == id);
         return true;

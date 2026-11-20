@@ -17,14 +17,14 @@ public class ColheitaRepository()
         return lista;
     }
 
-    public Colheita? GetById(ObjectId id)
+    public Colheita? GetById(string id)
     {
         return _collection.Find(colheita => colheita.Id == id).First();
     }
 
     public bool Create(Colheita colheita)
     {
-        colheita.Id = ObjectId.GenerateNewId();
+        colheita.Id = ObjectId.GenerateNewId().ToString();
         _collection.InsertOne(colheita);
         return true;
     }
@@ -35,7 +35,7 @@ public class ColheitaRepository()
         return true;
     }
 
-    public bool Delete(ObjectId id)
+    public bool Delete(string id)
     {
         _collection.DeleteOne(colheita => colheita.Id == id);
         return true;

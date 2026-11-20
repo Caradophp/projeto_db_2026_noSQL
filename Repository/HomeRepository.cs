@@ -1,4 +1,3 @@
-using Oracle.ManagedDataAccess.Client;
 
 namespace projeto.Repository;
 
@@ -14,20 +13,7 @@ public class HomeRepository(IConfiguration configuration)
         {
             Dictionary<string, int> dictionaryToReturn = [];
 
-            string sql = "SELECT * FROM TABLE(GET_TABLE_COUNTS())";
-
-            using var connection = new OracleConnection(_connectionString);
-            using var command = new OracleCommand(sql, connection);
-
-            connection.Open();
-            using OracleDataReader reader = command.ExecuteReader();
-
-            while (reader.Read())
-            {
-                string tableName = reader.GetString(0);
-                int rowCount = Convert.ToInt32(reader.GetValue(1));
-                dictionaryToReturn.Add(tableName, rowCount);
-            }
+            
 
             return dictionaryToReturn;
             

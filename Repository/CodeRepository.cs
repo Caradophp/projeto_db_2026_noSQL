@@ -16,11 +16,11 @@ public class CodeRepository(IConfiguration configuration)
         .GetDatabase("cultiva")
         .GetCollection<Code>("codes");
 
-    public void SaveCode(int code, ObjectId idUser)
+    public void SaveCode(int code, string idUser)
     {
         var codeToSave = new Code
         {
-            Id = ObjectId.GenerateNewId(),
+            Id = ObjectId.GenerateNewId().ToString(),
             Value = code,
             UserId = idUser,
             ExpirationAt = DateTime.Now
@@ -29,7 +29,7 @@ public class CodeRepository(IConfiguration configuration)
         _collection.InsertOne(codeToSave);
     }
 
-    public bool CheckIfCodeIsValid(int code, ObjectId idUser)
+    public bool CheckIfCodeIsValid(int code, string idUser)
     {
         var codeFound = _collection.Find<Code>(c => c.Value == code && c.ExpirationAt > DateTime.Now)
             .Limit(1)
@@ -44,7 +44,7 @@ public class CodeRepository(IConfiguration configuration)
         }
     }
 
-    public void DeleteCodesByUser(ObjectId idUser)
+    public void DeleteCodesByUser(string idUser)
     {
         _collection.DeleteMany(c => c.UserId == idUser);
     }

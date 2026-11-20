@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function getTalhaoNome(id) {
         const item = talhoes.find(
-            talhao => Number(talhao.id) === Number(id)
+            talhao => talhao.id === id
         );
 
         return item ? item.nome : `Talhão ${id}`;
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function getCulturaNome(id) {
         const item = culturas.find(
-            cultura => Number(cultura.id) === Number(id)
+            cultura => cultura.id === id
         );
 
         return item ? item.nome : `Cultura ${id}`;
@@ -211,8 +211,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const culturaIds = new Set(
             plantios
-                .map(item => Number(item.culturaId))
-                .filter(id => id > 0)
+                .map(item =>item.culturaId)
+                .filter(id => id == '')
         );
 
         totalElement.textContent = total;
@@ -478,7 +478,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             form.reset();
 
-            document.getElementById('plantioId').value = '0';
+            document.getElementById('plantioId').value = '';
             document.getElementById('plantioStatus').value =
                 'Em andamento';
 
@@ -505,7 +505,7 @@ document.addEventListener('DOMContentLoaded', function () {
             await loadReferences();
 
             const item = plantios.find(
-                plantio => Number(plantio.id) === Number(id)
+                plantio => plantio.id === id
             );
 
             if (!item) {
@@ -564,17 +564,11 @@ document.addEventListener('DOMContentLoaded', function () {
     async function savePlantio(event) {
         event.preventDefault();
 
-        const id = Number(
-            document.getElementById('plantioId').value
-        );
+        const id = document.getElementById('plantioId').value
 
-        const talhaoId = Number(
-            document.getElementById('plantioTalhao').value
-        );
+        const talhaoId = document.getElementById('plantioTalhao').value;
 
-        const culturaId = Number(
-            document.getElementById('plantioCultura').value
-        );
+        const culturaId = document.getElementById('plantioCultura').value;
 
         const dataPlantio =
             document.getElementById('plantioData').value;
@@ -651,7 +645,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 observacoes || null
         };
 
-        const url = id === 0
+        const url = id === ''
             ? '/Plantio/Create'
             : '/Plantio/Update';
 
@@ -695,7 +689,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function deletePlantio(id) {
         const item = plantios.find(
-            plantio => Number(plantio.id) === Number(id)
+            plantio => plantio.id === id
         );
 
         const description = item
@@ -713,7 +707,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             const response = await fetch(
-                `/Plantio/Delete?id=${id}`,
+                `/Plantio/Delete?id=${encodeURIComponent(id)}`,
                 {
                     method: 'POST',
                     headers: getAuthHeaders()
@@ -760,7 +754,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const id = Number(button.dataset.id);
+        const id = button.dataset.id;
         const action = button.dataset.action;
 
         if (action === 'edit') {

@@ -56,7 +56,7 @@ public class UserService(
         return userRepository.CreateUser(user);
     }
 
-    public bool CheckUserLogin(string email, string password)
+    public User CheckUserLogin(string email, string password)
     {
         User? user = userRepository.CheckUserLogin(email, password);
 
@@ -72,7 +72,7 @@ public class UserService(
                 throw new Exception("Usuário desativado");
             }
 
-            return true;
+            return user;
         }
         else
         {
@@ -188,5 +188,10 @@ public class UserService(
         );
 
         _codeRepository.DeleteCodesByUser(user.Id);
+    }
+
+    public User? FindById(string id)
+    {
+        return _userRepository.FindById(id);
     }
 }

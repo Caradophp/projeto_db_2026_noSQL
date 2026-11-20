@@ -1,3 +1,4 @@
+using MongoDB.Bson;
 using projeto.Models;
 using projeto.Repository;
 
@@ -12,7 +13,7 @@ public class InsumoService(InsumoRepository insumoRepository)
         return _insumoRepository.GetAll();
     }
 
-    public Insumo? GetById(int id)
+    public Insumo? GetById(string id)
     {
         return _insumoRepository.GetById(id);
     }
@@ -33,7 +34,7 @@ public class InsumoService(InsumoRepository insumoRepository)
         return _insumoRepository.Update(insumo);
     }
 
-    public bool Remove(int id)
+    public bool Remove(string id)
     {
         return _insumoRepository.Delete(id);
     }

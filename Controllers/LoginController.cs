@@ -23,7 +23,7 @@ public class LoginController(
     }
 
     [HttpPost]
-    public void CheckUserLogin(string email, string password)
+    public async void CheckUserLogin(string email, string password)
     {
         if (string.IsNullOrWhiteSpace(email))
         {
@@ -35,24 +35,25 @@ public class LoginController(
             throw new Exception("Senha deve ser informada.");
         }
 
-        bool isValid = _userService.CheckUserLogin(
+        var foundUser = _userService.CheckUserLogin(
             email,
             password
-        );
-
-        if (!isValid)
-        {
-            throw new Exception("E-mail ou senha inválidos.");
-        }
+        ) ?? throw new Exception("E-mail ou senha inválidos.");
 
         var token = _jwt.GenerateJwtToken(email, "");
 
-        Dictionary<string, string> data = new()
+        if (string.IsNullOrEmpty(foundUser.Id))
         {
-            { "token", token }
+            throw new Exception("Erro ao recuperar ID do usuário");
+        }
+
+        var data = new
+        {
+            token = token,
+            userId = foundUser.Id
         };
 
-        HttpContext.Response.WriteAsJsonAsync(data);
+        await HttpContext.Response.WriteAsJsonAsync(data);
     }
 
     [HttpPost]

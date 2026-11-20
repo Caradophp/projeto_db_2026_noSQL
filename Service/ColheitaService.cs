@@ -1,3 +1,4 @@
+using MongoDB.Bson;
 using projeto.Models;
 using projeto.Repository;
 
@@ -12,7 +13,7 @@ public class ColheitaService(ColheitaRepository colheitaRepository)
         return _colheitaRepository.GetAll();
     }
 
-    public Colheita? GetById(int id)
+    public Colheita? GetById(string id)
     {
         return _colheitaRepository.GetById(id);
     }
@@ -26,7 +27,7 @@ public class ColheitaService(ColheitaRepository colheitaRepository)
 
     public bool Update(Colheita colheita)
     {
-        if (colheita.Id <= 0)
+        if (colheita.Id == default)
             throw new ArgumentException("Colheita inválida.");
 
         Validate(colheita);
@@ -34,9 +35,9 @@ public class ColheitaService(ColheitaRepository colheitaRepository)
         return _colheitaRepository.Update(colheita);
     }
 
-    public bool Remove(int id)
+    public bool Remove(string id)
     {
-        if (id <= 0)
+        if (id == default)
             throw new ArgumentException("Colheita inválida.");
 
         return _colheitaRepository.Delete(id);
@@ -44,7 +45,7 @@ public class ColheitaService(ColheitaRepository colheitaRepository)
 
     private static void Validate(Colheita colheita)
     {
-        if (colheita.PlantioId <= 0)
+        if (colheita.PlantioId == default)
             throw new ArgumentException("Informe um plantio válido.");
 
         if (colheita.DataColheita == default)

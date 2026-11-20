@@ -16,7 +16,7 @@ public class UserRepository(EncryptionService encryptionService)
     public bool CreateUser(User user)
     {
         string hashedPassword = _encryptionService.HashPassword(user.Password);
-        var id = ObjectId.GenerateNewId();
+        var id = ObjectId.GenerateNewId().ToString();
         user.Id = id;
         user.Password = hashedPassword;
         _collection.InsertOne(user);
@@ -33,7 +33,11 @@ public class UserRepository(EncryptionService encryptionService)
         }
 
         return user;
-
+    }
+    
+    public User? FindById(string id)
+    {
+        return _collection.Find(u => u.Id == id).First();       
     }
 
     public User? FindByEmail(string email)
