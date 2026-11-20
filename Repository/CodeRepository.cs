@@ -6,13 +6,8 @@ namespace projeto.Repository;
 
 public class CodeRepository(IConfiguration configuration)
 {
-    private readonly string _connectionString =
-        configuration.GetConnectionString("OracleDb")
-        ?? throw new InvalidOperationException(
-            "A string de conexão 'OracleDb' não foi configurada."
-        );
 
-    private readonly IMongoCollection<Code> _collection = new MongoClient("mongodb://admin:123@localhost:27017/?authSource=admin")
+    private readonly IMongoCollection<Code> _collection = new MongoClient(DotNetEnv.Env.GetString("MONGO_CONNECTION_STRING"))
         .GetDatabase("cultiva")
         .GetCollection<Code>("codes");
 
