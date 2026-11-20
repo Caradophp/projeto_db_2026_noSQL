@@ -16,41 +16,19 @@ The project already contains a `compose.yml` file; it is the same as the one bel
 
 ```yaml
 services:
-  oracle_db:
-    image: gvenzl/oracle-free
+  mongodb:
+    image: mongo
     ports:
-      - "1521:1521"
-    environment:
-      - ORACLE_PASSWORD=123
+      - "27017:27017"
+    environment: 
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=123
     volumes:
-      - data:/opt/oracle/oradata
+      - data:/data/db
 
 volumes:
   data:
 ```
-
-## Configuring the Database Connection String
-
-1. Open the `appsettings.json` file in the project.
-2. Configure the `ConnectionStrings` section with your database credentials and connection details.
-
-Example:
-
-```json
-{
-  "ConnectionStrings": {
-    "OracleDb": "User Id=<your_database_user>;Password=<your_database_password>;Data Source=localhost:1521/<your_database_name>;"
-  }
-}
-```
-
-Replace the following placeholders with your Oracle database configuration:
-
-- `<your_database_user>`: Your Oracle database username.
-- `<your_database_password>`: Your Oracle database password.
-- `<your_database_name>`: Your Oracle database service name.
-
-Make sure the connection string matches your Oracle database configuration.
 
 ## Configuring the `.env` File
 
@@ -77,6 +55,7 @@ EMAIL_FROM=<your_email>
 EMAIL_PASSWORD=<your_email_password>
 API_SECRECT_KEY=<your_secret_key>
 ENCRYPTION_KEY=<your_encryption_key>
+MONGO_CONNECTION_STRING="mongodb://admin:123@localhost:27017/?authSource=admin"
 ```
 
 Replace the placeholders with your actual configuration values.
@@ -124,8 +103,8 @@ http://localhost:8081/login
 
 ## Notes
 
-- The default Oracle database password in the Docker Compose example is `123`.
-- The Oracle database is accessible on port `1521`.
+- The default MongoDB password in the Docker Compose example is `123` and user is `admin`.
+- The Mongo database is accessible on port `27017`.
 - The application runs on port `8081`.
 - Make sure Docker is running before starting the database.
 - Ensure that the database connection string and environment variables are correctly configured before running the application.
@@ -153,41 +132,19 @@ O projeto já contém arquivo `compose.yml`, ele é o mesmo mostrado abaixo.
 
 ```yaml
 services:
-  oracle_db:
-    image: gvenzl/oracle-free
+  mongodb:
+    image: mongo
     ports:
-      - "1521:1521"
-    environment:
-      - ORACLE_PASSWORD=123
+      - "27017:27017"
+    environment: 
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=123
     volumes:
-      - data:/opt/oracle/oradata
+      - data:/data/db
 
 volumes:
   data:
 ```
-
-## Configurando a String de Conexão com o Banco de Dados
-
-1. Abra o arquivo `appsettings.json` do projeto.
-2. Configure a seção `ConnectionStrings` com as credenciais e os dados de conexão do seu banco de dados.
-
-Exemplo:
-
-```json
-{
-  "ConnectionStrings": {
-    "OracleDb": "User Id=<seu_usuario_do_banco>;Password=<sua_senha_do_banco>;Data Source=localhost:1521/<nome_do_servico_do_banco>;"
-  }
-}
-```
-
-Substitua os seguintes campos pelos dados do seu banco de dados Oracle:
-
-- `<seu_usuario_do_banco>`: Nome de usuário do banco de dados Oracle.
-- `<sua_senha_do_banco>`: Senha do banco de dados Oracle.
-- `<nome_do_servico_do_banco>`: Nome do serviço do banco de dados Oracle.
-
-Certifique-se de que a string de conexão corresponde à configuração do seu banco de dados Oracle.
 
 ## Configurando o Arquivo `.env`
 
@@ -214,6 +171,7 @@ EMAIL_FROM=<seu_email>
 EMAIL_PASSWORD=<sua_senha_de_email>
 API_SECRECT_KEY=<sua_chave_secreta>
 ENCRYPTION_KEY=<sua_chave_de_criptografia>
+MONGO_CONNECTION_STRING="mongodb://admin:123@localhost:27017/?authSource=admin"
 ```
 
 Substitua os valores de exemplo pelas suas configurações reais.
@@ -261,8 +219,8 @@ http://localhost:8081/login
 
 ## Observações
 
-- A senha padrão do Oracle Database no exemplo do Docker Compose é `123`.
-- O banco de dados Oracle estará acessível na porta `1521`.
+- A senha padrão do MongoDB  no exemplo do Docker Compose é `123` e o usuário pe `admin`.
+- O banco de dados Mongo estará acessível na porta `27017`.
 - A aplicação será executada na porta `8081`.
 - Certifique-se de que o Docker esteja em execução antes de iniciar o banco de dados.
 - Verifique se a string de conexão e as variáveis de ambiente estão configuradas corretamente antes de executar a aplicação.
