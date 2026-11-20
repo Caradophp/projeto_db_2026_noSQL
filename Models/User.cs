@@ -1,12 +1,14 @@
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using projeto.Models.Enums;
 
 namespace projeto.Models;
 
 public class User
 {
-    
-    public ObjectId Id { get; set; }
+    [BsonId]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string? Id { get; set; }
     public required string Name { get; set; } 
 
     public required string Email { get; set;}

@@ -1,3 +1,4 @@
+using MongoDB.Bson;
 using projeto.Models;
 using projeto.Repository;
 
@@ -17,5 +18,5 @@ public class AplicacaoInsumoService(AplicacaoInsumoRepository repository)
 
     public bool UpdateAplicacao(AplicacaoInsumo aplicacao) => _repository.Update(aplicacao);
 
-    public bool DeleteAplicacao(int id) => _repository.Delete(id);
+    public bool DeleteAplicacao(string id) => _repository.Delete(id);
 }

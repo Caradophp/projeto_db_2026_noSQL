@@ -19,7 +19,7 @@ public class AplicacaoInsumoRepository()
 
     public bool Create(AplicacaoInsumo aplicacao)
     {
-        aplicacao.Id = ObjectId.GenerateNewId();
+        aplicacao.Id = ObjectId.GenerateNewId().ToString();
         _collection.InsertOne(aplicacao);
         return true;
     }
@@ -30,7 +30,7 @@ public class AplicacaoInsumoRepository()
         return true;
     }
 
-    public bool Delete(ObjectId id)
+    public bool Delete(string id)
     {
         _collection.DeleteOne(aplicacaoInsumo => aplicacaoInsumo.Id == id);
         return true;

@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', function () {
 
     const modalElement = document.getElementById('propriedadeModal');
@@ -10,24 +9,102 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('propertySearch');
 
     let propriedades = [];
-	function getAuthHeaders(includeContentType = false) {
+    let userNames = {};
 
-    const token = localStorage.getItem('token');
+    // =========================================================
+    // AUTHENTICATION
+    // =========================================================
 
-    const headers = {
-        'Accept': 'application/json'
-    };
+    function getAuthHeaders(includeContentType = false) {
 
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+        const token = localStorage.getItem('token');
+
+        const headers = {
+            'Accept': 'application/json'
+        };
+
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        if (includeContentType) {
+            headers['Content-Type'] = 'application/json';
+        }
+
+        return headers;
     }
 
-    if (includeContentType) {
-        headers['Content-Type'] = 'application/json';
+
+    // =========================================================
+    // COOKIES
+    // =========================================================
+
+    function getCookie(name) {
+
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+
+        if (parts.length === 2) {
+            return parts.pop().split(';').shift();
+        }
+
+        return null;
     }
 
-    return headers;
-}
+
+    // =========================================================
+    // USERNAMES
+    // =========================================================
+
+    async function loadUserNames() {
+
+        userNames = {};
+
+        const userIds = [
+            ...new Set(
+                propriedades
+                    .map(item => item.userId)
+                    .filter(Boolean)
+            )
+        ];
+
+        await Promise.all(
+
+            userIds.map(async userId => {
+
+                try {
+
+                    const response = await fetch(
+                        `/User/FindById?id=${encodeURIComponent(userId)}`,
+                        {
+                            method: 'GET',
+                            headers: getAuthHeaders()
+                        }
+                    );
+
+                    if (!response.ok) {
+                        throw new Error('Erro ao carregar usuário.');
+                    }
+
+                    const user = await response.json();
+
+                    userNames[userId] = user.name || 'Usuário desconhecido';
+
+                } catch (error) {
+
+                    console.error(
+                        `Erro ao carregar usuário ${userId}:`,
+                        error
+                    );
+
+                    userNames[userId] = 'Não identificado';
+                }
+
+            })
+
+        );
+    }
+
 
     // =========================================================
     // CARREGAMENTO
@@ -39,13 +116,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
 
-           const response = await fetch(
-    '/Propriedade/GetList',
-    {
-        method: 'GET',
-        headers: getAuthHeaders()
-    }
-);
+            const response = await fetch(
+                '/Propriedade/GetList',
+                {
+                    method: 'GET',
+                    headers: getAuthHeaders()
+                }
+            );
 
             if (!response.ok) {
                 throw new Error(
@@ -58,6 +135,9 @@ document.addEventListener('DOMContentLoaded', function () {
             propriedades = Array.isArray(data)
                 ? data
                 : [];
+
+            // Load usernames before rendering the table.
+            await loadUserNames();
 
             updateIndicators();
 
@@ -109,10 +189,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 )
         );
 
-        setText(
-            'propertyTotal',
-            total
-        );
+        setText('propertyTotal', total);
 
         setText(
             'propertyTotalArea',
@@ -133,8 +210,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function setText(id, value) {
 
-        const element =
-            document.getElementById(id);
+        const element = document.getElementById(id);
 
         if (element) {
             element.textContent = value;
@@ -216,9 +292,7 @@ document.addEventListener('DOMContentLoaded', function () {
             `;
 
             const emptyAddButton =
-                document.getElementById(
-                    'emptyAddProperty'
-                );
+                document.getElementById('emptyAddProperty');
 
             emptyAddButton?.addEventListener(
                 'click',
@@ -229,110 +303,101 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
 
-        tableBody.innerHTML =
-            data.map(item => {
+        tableBody.innerHTML = data.map(item => {
 
-                const id =
-                    Number(item.id ?? 0);
+            const id = item.id ?? '';
 
-                const nome =
-                    escapeHtml(
-                        item.nome || 'Sem nome'
-                    );
+            const nome = escapeHtml(
+                item.nome || 'Sem nome'
+            );
 
-                const area =
-                    formatArea(item.areaTotal);
+            const area = formatArea(item.areaTotal);
 
-                const userId =
-                    escapeHtml(
-                        String(
-                            item.userId ?? '-'
-                        )
-                    );
+            const userId = String(item.userId ?? '');
 
-                return `
-                    <tr>
+            const userName = escapeHtml(
+                userNames[userId] || 'Não identificado'
+            );
 
-                        <td class="property-id">
-                            #${id}
-                        </td>
+            return `
+                <tr>
 
-                        <td>
+                    <td class="property-id">
+                        #${escapeHtml(String(id))}
+                    </td>
 
-                            <div class="property-name-cell">
+                    <td>
 
-                                <span class="property-row-icon">
-                                    <i class="fa-solid fa-house-chimney"></i>
+                        <div class="property-name-cell">
+
+                            <span class="property-row-icon">
+                                <i class="fa-solid fa-house-chimney"></i>
+                            </span>
+
+                            <div>
+                                <strong>
+                                    ${nome}
+                                </strong>
+
+                                <span>
+                                    Propriedade #${escapeHtml(String(id))}
                                 </span>
-
-                                <div>
-                                    <strong>
-                                        ${nome}
-                                    </strong>
-
-                                    <span>
-                                        Propriedade #${id}
-                                    </span>
-                                </div>
-
                             </div>
 
-                        </td>
+                        </div>
 
-                        <td>
+                    </td>
 
-                            <span class="property-area">
-                                ${area}
-                            </span>
+                    <td>
 
-                        </td>
+                        <span class="property-area">
+                            ${area}
+                        </span>
 
-                        <td>
+                    </td>
 
-                            <span class="property-user">
+                    <td>
 
-                                <i class="fa-regular fa-user"></i>
+                        <span class="property-user">
+                            ${userName}
+                        </span>
 
-                                Usuário ${userId}
+                    </td>
 
-                            </span>
+                    <td>
 
-                        </td>
+                        <div class="property-actions">
 
-                        <td>
+                            <button
+                                type="button"
+                                class="property-action-button edit btn-edit"
+                                data-id="${escapeHtml(String(id))}"
+                                title="Editar propriedade"
+                                aria-label="Editar propriedade">
 
-                            <div class="property-actions">
+                                <i class="fa-solid fa-pen"></i>
 
-                                <button
-                                    type="button"
-                                    class="property-action-button edit btn-edit"
-                                    data-id="${id}"
-                                    title="Editar propriedade"
-                                    aria-label="Editar propriedade">
+                            </button>
 
-                                    <i class="fa-solid fa-pen"></i>
+                            <button
+                                type="button"
+                                class="property-action-button delete btn-delete"
+                                data-id="${escapeHtml(String(id))}"
+                                title="Excluir propriedade"
+                                aria-label="Excluir propriedade">
 
-                                </button>
+                                <i class="fa-solid fa-trash"></i>
 
-                                <button
-                                    type="button"
-                                    class="property-action-button delete btn-delete"
-                                    data-id="${id}"
-                                    title="Excluir propriedade"
-                                    aria-label="Excluir propriedade">
+                            </button>
 
-                                    <i class="fa-solid fa-trash"></i>
+                        </div>
 
-                                </button>
+                    </td>
 
-                            </div>
+                </tr>
+            `;
 
-                        </td>
-
-                    </tr>
-                `;
-
-            }).join('');
+        }).join('');
     }
 
 
@@ -340,15 +405,11 @@ document.addEventListener('DOMContentLoaded', function () {
     // RODAPÉ DA TABELA
     // =========================================================
 
-    function updateResultsText(
-        visible,
-        total
-    ) {
+    function updateResultsText(visible, total) {
 
-        const element =
-            document.getElementById(
-                'propertyResultsText'
-            );
+        const element = document.getElementById(
+            'propertyResultsText'
+        );
 
         if (!element) {
             return;
@@ -465,10 +526,9 @@ document.addEventListener('DOMContentLoaded', function () {
             </tr>
         `;
 
-        const results =
-            document.getElementById(
-                'propertyResultsText'
-            );
+        const results = document.getElementById(
+            'propertyResultsText'
+        );
 
         if (results) {
             results.textContent =
@@ -487,12 +547,36 @@ document.addEventListener('DOMContentLoaded', function () {
 
         document.getElementById(
             'propriedadeId'
-        ).value = '0';
+        ).value = '';
 
         document.getElementById(
             'propriedadeModalLabel'
-        ).textContent =
-            'Nova propriedade';
+        ).textContent = 'Nova propriedade';
+
+        $.ajax({
+
+            url: "/User/FindById?id=" +
+                encodeURIComponent(getCookie("userId")),
+
+            method: 'GET',
+
+            dataType: 'json',
+
+            headers: getAuthHeaders(),
+
+            success: (result) => {
+
+                $('#propUser').val(result.name);
+
+            },
+
+            error: () => {
+
+                alert('Erro desconhecido');
+
+            }
+
+        });
 
         propModal.show();
     }
@@ -504,12 +588,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function openEditModal(id) {
 
-        const item =
-            propriedades.find(
-                propriedade =>
-                    Number(propriedade.id) ===
-                    Number(id)
-            );
+        const item = propriedades.find(
+            propriedade =>
+                String(propriedade.id) === String(id)
+        );
 
         if (!item) {
             return;
@@ -517,28 +599,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
         document.getElementById(
             'propriedadeId'
-        ).value =
-            item.id;
+        ).value = item.id;
 
         document.getElementById(
             'propNome'
-        ).value =
-            item.nome ?? '';
+        ).value = item.nome ?? '';
 
         document.getElementById(
             'propArea'
-        ).value =
-            item.areaTotal ?? '';
+        ).value = item.areaTotal ?? '';
 
         document.getElementById(
             'propUser'
-        ).value =
-            item.userId ?? '';
+        ).value = userNames[String(item.userId)] || '';
 
         document.getElementById(
             'propriedadeModalLabel'
-        ).textContent =
-            'Editar propriedade';
+        ).textContent = 'Editar propriedade';
 
         propModal.show();
     }
@@ -552,76 +629,57 @@ document.addEventListener('DOMContentLoaded', function () {
 
         event.preventDefault();
 
-        const id =
-            Number(
-                document.getElementById(
-                    'propriedadeId'
-                ).value
-            );
+        const id = document.getElementById(
+            'propriedadeId'
+        ).value;
 
         const formData = {
 
             id: id,
 
-            nome:
+            nome: document.getElementById(
+                'propNome'
+            ).value.trim(),
+
+            areaTotal: Number(
                 document.getElementById(
-                    'propNome'
-                ).value.trim(),
+                    'propArea'
+                ).value
+            ),
 
-            areaTotal:
-                Number(
-                    document.getElementById(
-                        'propArea'
-                    ).value
-                ),
-
-            userId:
-                Number(
-                    document.getElementById(
-                        'propUser'
-                    ).value
-                )
+            userId: getCookie("userId")
         };
 
 
-        const url =
-            id === 0
-                ? '/Propriedade/Create'
-                : '/Propriedade/Update';
+        const url = id === ''
+            ? '/Propriedade/Create'
+            : '/Propriedade/Update';
 
 
         try {
 
-           const response =
-    await fetch(
-        url,
-        {
-            method: 'POST',
+            const response = await fetch(
+                url,
+                {
+                    method: 'POST',
 
-            headers:
-                getAuthHeaders(true),
+                    headers: getAuthHeaders(true),
 
-            body:
-                JSON.stringify(
-                    formData
-                )
-        }
-    );
+                    body: JSON.stringify(formData)
+                }
+            );
 
-            const result =
-                await response.json();
-
+            const result = await response.json();
 
             if (!result.success) {
 
-               await CultivaAlert.error(
-    'Erro: ' + result.message,
-    'Erro ao salvar'
-);
+                await CultivaAlert.error(
+                    'Erro: ' + result.message,
+                    'Erro ao salvar'
+                );
 
                 return;
             }
-
 
             propModal.hide();
 
@@ -635,9 +693,9 @@ document.addEventListener('DOMContentLoaded', function () {
             );
 
             await CultivaAlert.error(
-    'Não foi possível salvar a propriedade.',
-    'Erro ao salvar'
-);
+                'Não foi possível salvar a propriedade.',
+                'Erro ao salvar'
+            );
         }
     }
 
@@ -648,24 +706,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function deletePropriedade(id) {
 
-        const item =
-            propriedades.find(
-                propriedade =>
-                    Number(propriedade.id) ===
-                    Number(id)
-            );
+        const item = propriedades.find(
+            propriedade =>
+                String(propriedade.id) === String(id)
+        );
 
-        const nome =
-            item?.nome
-                ? `"${item.nome}"`
-                : 'esta propriedade';
+        const nome = item?.nome
+            ? `"${item.nome}"`
+            : 'esta propriedade';
 
 
-        const confirmed =
-    await CultivaAlert.delete(
-        'Excluir propriedade?',
-        `Tem certeza que deseja excluir ${nome}?`
-    );
+        const confirmed = await CultivaAlert.delete(
+            'Excluir propriedade?',
+            `Tem certeza que deseja excluir ${nome}?`
+        );
 
 
         if (!confirmed) {
@@ -675,28 +729,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
 
-            const response =
-    await fetch(
-        `/Propriedade/Delete?id=${id}`,
-        {
-            method: 'POST',
-            headers: getAuthHeaders()
-        }
-    );
+            const response = await fetch(
+                `/Propriedade/Delete?id=${encodeURIComponent(id)}`,
+                {
+                    method: 'POST',
+                    headers: getAuthHeaders()
+                }
+            );
 
-            const result =
-                await response.json();
+            const result = await response.json();
 
 
-           if (!result.success) {
+            if (!result.success) {
 
-    await CultivaAlert.error(
-        result.message || 'Não foi possível excluir a propriedade.',
-        'Erro ao excluir'
-    );
+                await CultivaAlert.error(
+                    result.message ||
+                    'Não foi possível excluir a propriedade.',
+                    'Erro ao excluir'
+                );
 
-    return;
-}
+                return;
+            }
 
             await loadPropriedades();
 
@@ -708,9 +761,9 @@ document.addEventListener('DOMContentLoaded', function () {
             );
 
             await CultivaAlert.error(
-    'Não foi possível excluir a propriedade.',
-    'Erro ao excluir'
-);
+                'Não foi possível excluir a propriedade.',
+                'Erro ao excluir'
+            );
         }
     }
 
@@ -721,59 +774,43 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function filterPropriedades() {
 
-        const search =
-            searchInput.value
-                .trim()
-                .toLocaleLowerCase(
-                    'pt-BR'
-                );
+        const search = searchInput.value
+            .trim()
+            .toLocaleLowerCase('pt-BR');
 
 
         if (!search) {
 
-            renderPropriedades(
-                propriedades
-            );
+            renderPropriedades(propriedades);
 
             return;
         }
 
 
-        const filtered =
-            propriedades.filter(
-                item => {
+        const filtered = propriedades.filter(item => {
 
-                    const nome =
-                        String(
-                            item.nome || ''
-                        )
-                        .toLocaleLowerCase(
-                            'pt-BR'
-                        );
+            const nome = String(item.nome || '')
+                .toLocaleLowerCase('pt-BR');
 
-                    const id =
-                        String(
-                            item.id ?? ''
-                        );
+            const id = String(item.id ?? '');
 
-                    const userId =
-                        String(
-                            item.userId ?? ''
-                        );
+            const userId = String(item.userId ?? '');
+
+            const userName = String(
+                userNames[userId] || ''
+            ).toLocaleLowerCase('pt-BR');
 
 
-                    return (
-                        nome.includes(search) ||
-                        id.includes(search) ||
-                        userId.includes(search)
-                    );
-                }
+            return (
+                nome.includes(search) ||
+                id.includes(search) ||
+                userId.includes(search) ||
+                userName.includes(search)
             );
+        });
 
 
-        renderPropriedades(
-            filtered
-        );
+        renderPropriedades(filtered);
     }
 
 
@@ -784,26 +821,11 @@ document.addEventListener('DOMContentLoaded', function () {
     function escapeHtml(value) {
 
         return String(value)
-            .replaceAll(
-                '&',
-                '&amp;'
-            )
-            .replaceAll(
-                '<',
-                '&lt;'
-            )
-            .replaceAll(
-                '>',
-                '&gt;'
-            )
-            .replaceAll(
-                '"',
-                '&quot;'
-            )
-            .replaceAll(
-                "'",
-                '&#039;'
-            );
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
     }
 
 
@@ -833,27 +855,18 @@ document.addEventListener('DOMContentLoaded', function () {
         'click',
         function (event) {
 
-            const button =
-                event.target.closest(
-                    'button[data-id]'
-                );
+            const button = event.target.closest(
+                'button[data-id]'
+            );
 
             if (!button) {
                 return;
             }
 
-
-            const id =
-                Number(
-                    button.dataset.id
-                );
+            const id = button.dataset.id;
 
 
-            if (
-                button.classList.contains(
-                    'btn-edit'
-                )
-            ) {
+            if (button.classList.contains('btn-edit')) {
 
                 openEditModal(id);
 
@@ -861,11 +874,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
 
-            if (
-                button.classList.contains(
-                    'btn-delete'
-                )
-            ) {
+            if (button.classList.contains('btn-delete')) {
 
                 deletePropriedade(id);
             }

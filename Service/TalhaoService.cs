@@ -1,3 +1,4 @@
+using MongoDB.Bson;
 using projeto.Models;
 using projeto.Repository;
 
@@ -12,7 +13,7 @@ public class TalhaoService(TalhaoRepository talhaoRepository)
         return _talhaoRepository.GetAll();
     }
 
-    public Talhao? GetById(int id)
+    public Talhao? GetById(string id)
     {
         return _talhaoRepository.GetById(id);
     }
@@ -33,7 +34,7 @@ public class TalhaoService(TalhaoRepository talhaoRepository)
         return _talhaoRepository.Update(talhao);
     }
 
-    public bool Remove(int id)
+    public bool Remove(string id)
     {
         return _talhaoRepository.Delete(id);
     }

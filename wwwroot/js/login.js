@@ -140,7 +140,15 @@ $('#enterBtn').click(() => {
         },
 
         success: (result) => {
+
             localStorage.setItem('token', result.token);
+
+            if (result.userId === undefined) {
+                alert.html('Erro ao recuperar ID do usuário. Contate o suporte técnico').removeClass('visually-hidden');
+                return;
+            }
+
+            document.cookie = 'userId=' + result.userId;
             location.href = '/';
         },
 

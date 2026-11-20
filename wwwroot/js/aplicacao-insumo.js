@@ -86,12 +86,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getTalhaoNome(id) {
-        const talhao = talhoes.find(item => Number(item.id) === Number(id));
+        const talhao = talhoes.find(item => item.id === id);
         return talhao?.nome ?? `Talhão #${id}`;
     }
 
     function getInsumoNome(id) {
-        const insumo = insumos.find(item => Number(item.id) === Number(id));
+        const insumo = insumos.find(item => item.id === id);
         return insumo?.nome ?? `Insumo #${id}`;
     }
 
@@ -163,11 +163,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const total = aplicacoes.length;
 
         const talhoesUtilizados = new Set(
-            aplicacoes.map(item => Number(item.talhaoId))
+            aplicacoes.map(item => item.talhaoId)
         ).size;
 
         const insumosUtilizados = new Set(
-            aplicacoes.map(item => Number(item.insumoId))
+            aplicacoes.map(item => item.insumoId)
         ).size;
 
         const quantidadeTotal = aplicacoes.reduce(
@@ -351,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function openCreateModal() {
         form.reset();
 
-        idInput.value = '0';
+        idInput.value = '';
         modalLabel.textContent = 'Nova aplicação';
 
         const today = new Date();
@@ -366,7 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
    async function openEditModal(id) {
         const aplicacao = aplicacoes.find(
-            item => Number(item.id) === Number(id)
+            item => item.id === id
         );
 
         if (!aplicacao) {
@@ -394,9 +394,9 @@ document.addEventListener('DOMContentLoaded', () => {
     async function saveAplicacao(event) {
         event.preventDefault();
 
-        const id = Number(idInput.value || 0);
-        const talhaoId = Number(talhaoSelect.value);
-        const insumoId = Number(insumoSelect.value);
+        const id = idInput.value || '';
+        const talhaoId = (talhaoSelect.value);
+        const insumoId = (insumoSelect.value);
         const quantidadeField = document.getElementById('aplicacaoQuantidadeInput');
 
 if (!quantidadeField) {
@@ -455,7 +455,7 @@ const quantidade = Number(quantidadeField.value);
             observacoes: observacoesInput.value.trim() || null
         };
 
-        const endpoint = id > 0
+        const endpoint = id !== ''
             ? '/AplicacaoInsumo/Update'
             : '/AplicacaoInsumo/Create';
 
@@ -494,7 +494,7 @@ const quantidade = Number(quantidadeField.value);
 
     async function deleteAplicacao(id) {
         const aplicacao = aplicacoes.find(
-            item => Number(item.id) === Number(id)
+            item => item.id === id
         );
 
         if (!aplicacao) {
@@ -558,7 +558,7 @@ const quantidade = Number(quantidadeField.value);
             return;
         }
 
-        const id = Number(button.dataset.id);
+        const id = button.dataset.id;
 
         if (button.dataset.action === 'edit') {
             openEditModal(id);

@@ -1,3 +1,4 @@
+using MongoDB.Bson;
 using projeto.Models;
 using projeto.Repository;
 
@@ -12,7 +13,7 @@ public class PropriedadeService(PropriedadeRepository propriedadeRepository)
         return _propriedadeRepository.GetAll();
     }
 
-    public Propriedade? GetById(int id)
+    public Propriedade? GetById(string id)
     {
         return _propriedadeRepository.GetById(id);
     }
@@ -33,7 +34,7 @@ public class PropriedadeService(PropriedadeRepository propriedadeRepository)
         return _propriedadeRepository.Update(prop);
     }
 
-    public bool Remove(int id)
+    public bool Remove(string id)
     {
         return _propriedadeRepository.Delete(id);
     }

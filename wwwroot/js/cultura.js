@@ -287,7 +287,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function openCreateModal() {
         form.reset();
 
-        document.getElementById('culturaId').value = '0';
+        document.getElementById('culturaId').value = '';
         document.getElementById('culturaModalLabel').textContent =
             'Nova cultura';
 
@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
    async function openEditModal(id) {
         const item = culturas.find(
-            cultura => Number(cultura.id) === Number(id)
+            cultura => String(cultura.id) === String(id)
         );
 
         if (!item) {
@@ -321,9 +321,7 @@ document.addEventListener('DOMContentLoaded', function () {
     async function saveCultura(event) {
         event.preventDefault();
 
-        const id = Number(
-            document.getElementById('culturaId').value
-        );
+        const id = document.getElementById('culturaId').value.trim();
 
         const nome = document
             .getElementById('cultNome')
@@ -343,15 +341,17 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
+        const isNew = !id;
+
+        const url = isNew
+            ? '/Cultura/Create'
+            : '/Cultura/Update';
+
         const formData = {
-            id,
+            ...(isNew ? {} : { id }),
             nome,
             descricao
         };
-
-        const url = id === 0
-            ? '/Cultura/Create'
-            : '/Cultura/Update';
 
         try {
             const response = await fetch(url, {
@@ -393,7 +393,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function deleteCultura(id) {
         const item = culturas.find(
-            cultura => Number(cultura.id) === Number(id)
+            cultura => String(cultura.id) === String(id)
         );
 
         const nome = item?.nome || 'esta cultura';
@@ -408,7 +408,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             const response = await fetch(
-                `/Cultura/Delete?id=${id}`,
+                `/Cultura/Delete?id=${encodeURIComponent(id)}`,
                 {
                     method: 'POST',
                     headers: getAuthHeaders()
@@ -455,7 +455,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const id = Number(button.dataset.id);
+        const id = button.dataset.id;
         const action = button.dataset.action;
 
         if (action === 'edit') {

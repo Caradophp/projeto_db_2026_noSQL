@@ -1,3 +1,4 @@
+using MongoDB.Bson;
 using projeto.Models;
 using projeto.Repository;
 
@@ -12,7 +13,7 @@ public class SafraService(SafraRepository safraRepository)
         return _safraRepository.GetAll();
     }
 
-    public Safra? GetById(int id)
+    public Safra? GetById(string id)
     {
         return _safraRepository.GetById(id);
     }
@@ -39,7 +40,7 @@ public class SafraService(SafraRepository safraRepository)
         return _safraRepository.Update(safra);
     }
 
-    public bool Remove(int id)
+    public bool Remove(string id)
     {
         return _safraRepository.Delete(id);
     }

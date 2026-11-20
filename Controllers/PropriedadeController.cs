@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using projeto.Models;
 using projeto.Service;
 
@@ -44,7 +45,7 @@ public class PropriedadeController(PropriedadeService propriedadeService) : Cont
     }
 
     [HttpPost]
-    public IActionResult Delete(int id)
+    public IActionResult Delete(string id)
     {
         try
         {

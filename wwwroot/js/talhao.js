@@ -370,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             form.reset();
 
-            document.getElementById('talhaoId').value = '0';
+            document.getElementById('talhaoId').value = '';
             document.getElementById('talhaoModalLabel').textContent =
                 'Novo talhão';
 
@@ -394,7 +394,7 @@ document.addEventListener('DOMContentLoaded', function () {
             await loadPropriedades();
 
             const item = talhoes.find(
-                talhao => Number(talhao.id) === Number(id)
+                talhao => talhao.id === id
             );
 
             if (!item) {
@@ -435,9 +435,8 @@ document.addEventListener('DOMContentLoaded', function () {
     async function saveTalhao(event) {
         event.preventDefault();
 
-        const id = Number(
-            document.getElementById('talhaoId').value
-        );
+        const id = 
+            document.getElementById('talhaoId').value ?? '';
 
         const nome = document
             .getElementById('talNome')
@@ -448,9 +447,8 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('talArea').value
         );
 
-        const propriedadeId = Number(
-            document.getElementById('talProp').value
-        );
+        const propriedadeId = 
+            document.getElementById('talProp').value;
 
         const descricao = document
             .getElementById('talDesc')
@@ -489,7 +487,7 @@ document.addEventListener('DOMContentLoaded', function () {
             descricao
         };
 
-        const url = id === 0
+        const url = id === ''
             ? '/Talhao/Create'
             : '/Talhao/Update';
 
@@ -596,7 +594,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const id = Number(button.dataset.id);
+        const id = button.dataset.id;
         const action = button.dataset.action;
 
         if (action === 'edit') {

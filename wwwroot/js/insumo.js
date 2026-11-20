@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function openCreateModal() {
         form.reset();
 
-        document.getElementById('insumoId').value = '0';
+        document.getElementById('insumoId').value = '';
 
         document.getElementById(
             'insumoModalLabel'
@@ -272,7 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openEditModal(id) {
         const item = insumos.find(
-            i => Number(i.id) === Number(id)
+            i => i.id === id
         );
 
         if (!item) return;
@@ -302,9 +302,9 @@ document.addEventListener('DOMContentLoaded', () => {
     async function saveInsumo(event) {
         event.preventDefault();
 
-        const id = Number(
-            document.getElementById('insumoId').value || 0
-        );
+        const id = 
+            document.getElementById('insumoId').value || ''
+        ;
 
         const nome =
             document.getElementById('insNome')
@@ -354,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const url =
-            id === 0
+            id === ''
                 ? '/Insumo/Create'
                 : '/Insumo/Update';
 
@@ -400,7 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function deleteInsumo(id) {
         const item = insumos.find(
-            i => Number(i.id) === Number(id)
+            i => i.id === id
         );
 
         if (!item) return;
@@ -414,7 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const response = await fetch(
-                `/Insumo/Delete?id=${id}`,
+                `/Insumo/Delete?id=${encodeURIComponent(id)}`,
                 {
                     method: 'POST',
                     headers: getHeaders()
@@ -475,7 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!button) return;
 
-            const id = Number(button.dataset.id);
+            const id = button.dataset.id;
             const action = button.dataset.action;
 
             if (action === 'edit') {

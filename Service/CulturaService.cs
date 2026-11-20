@@ -1,3 +1,4 @@
+using MongoDB.Bson;
 using projeto.Models;
 using projeto.Repository;
 
@@ -12,7 +13,7 @@ public class CulturaService(CulturaRepository culturaRepository)
         return _culturaRepository.GetAll();
     }
 
-    public Cultura? GetById(int id)
+    public Cultura? GetById(string id)
     {
         return _culturaRepository.GetById(id);
     }
@@ -27,7 +28,7 @@ public class CulturaService(CulturaRepository culturaRepository)
         return _culturaRepository.Update(cultura);
     }
 
-    public bool Remove(int id)
+    public bool Remove(string id)
     {
         return _culturaRepository.Delete(id);
     }

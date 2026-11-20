@@ -175,7 +175,7 @@ function renderizarColheitas(lista) {
                         type="button"
                         class="action-btn action-edit"
                         title="Editar"
-                        onclick="editarColheita(${colheita.id})">
+                        onclick="editarColheita('${colheita.id}')">
                         <i class="fa-solid fa-pen"></i>
                     </button>
 
@@ -183,7 +183,7 @@ function renderizarColheitas(lista) {
                         type="button"
                         class="action-btn action-delete"
                         title="Excluir"
-                        onclick="excluirColheita(${colheita.id})">
+                        onclick="excluirColheita('${colheita.id}')">
                         <i class="fa-solid fa-trash"></i>
                     </button>
 
@@ -288,12 +288,12 @@ async function salvarColheita(event) {
     event.preventDefault();
 
     const id =
-        Number(document.getElementById('colheitaId').value || 0);
+        document.getElementById('colheitaId').value || '';
 
     const payload = {
         id: id,
         plantioId:
-            Number(document.getElementById('plantioInput').value),
+            document.getElementById('plantioInput').value,
 
         dataColheita:
             document.getElementById('dataColheitaInput').value,
@@ -308,7 +308,7 @@ async function salvarColheita(event) {
     };
 
     const endpoint =
-        id > 0
+        id !== ''
             ? '/Colheita/Update'
             : '/Colheita/Create';
 
@@ -353,7 +353,7 @@ async function excluirColheita(id) {
 
     try {
         const response =
-            await fetch(`/Colheita/Delete?id=${id}`, {
+            await fetch(`/Colheita/Delete?id=${encodeURIComponent(id)}`, {
                 method: 'POST',
                 headers: authHeaders()
             });
