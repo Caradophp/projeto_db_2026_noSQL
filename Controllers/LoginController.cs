@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Mvc;
 using projeto.Security;
 using projeto.Service;
@@ -23,75 +24,79 @@ public class LoginController(
     }
 
     [HttpPost]
-    public async void CheckUserLogin(string email, string password)
+    public IActionResult CheckUserLogin(string email, string password)
     {
         if (string.IsNullOrWhiteSpace(email))
         {
-            throw new Exception("E-mail deve ser informado.");
+            return BadRequest(new ProblemDetails
+            {
+                Detail = "E-mail deve ser informado."
+            });
         }
 
         if (string.IsNullOrWhiteSpace(password))
         {
-            throw new Exception("Senha deve ser informada.");
+            return BadRequest(new ProblemDetails
+            {
+                Detail = "Senha deve ser informada."
+            });
         }
 
-        var foundUser = _userService.CheckUserLogin(
-            email,
-            password
-        ) ?? throw new Exception("E-mail ou senha inválidos.");
-
-        var token = _jwt.GenerateJwtToken(email, "");
-
-        if (string.IsNullOrEmpty(foundUser.Id))
+        try
         {
-            throw new Exception("Erro ao recuperar ID do usuário");
+            var foundUser = _userService.CheckUserLogin(email, password);
+
+            if (string.IsNullOrEmpty(foundUser.Id))
+            {
+                return StatusCode(500, new ProblemDetails
+                {
+                    Detail = "Erro ao recuperar ID do usuário."
+                });
+            }
+
+            var token = _jwt.GenerateJwtToken(email, "");
+
+            return Ok(new
+            {
+                token = token,
+                userId = foundUser.Id
+            });
         }
-
-        var data = new
+        catch (KeyNotFoundException)
         {
-            token = token,
-            userId = foundUser.Id
-        };
-
-        await HttpContext.Response.WriteAsJsonAsync(data);
+            return Unauthorized(new ProblemDetails
+            {
+                Detail = "E-mail ou senha inválidos."
+            });
+        }
     }
 
     [HttpPost]
-    public void SendEmailForRetrivePassword(string email)
+    public IActionResult SendEmailForRetrivePassword(string email)
     {
         _userService.SendEmailForRetrivePassword(email);
 
-        HttpContext.Response.WriteAsJsonAsync("sucesso");
+        return Ok("sucesso");
     }
 
     [HttpPost]
-    public void CheckCode(int codigo, string email)
+    public IActionResult CheckCode(int codigo, string email)
     {
-        bool isValid = _userService.CheckCode(
-            codigo,
-            email
-        );
+        bool isValid = _userService.CheckCode(codigo, email);
 
         if (isValid)
         {
-            HttpContext.Response.StatusCode = 200;
-            HttpContext.Response.WriteAsJsonAsync("sucesso");
+            return Ok("sucesso");
         }
-        else
-        {
-            HttpContext.Response.StatusCode = 401;
 
-            HttpContext.Response.WriteAsJsonAsync(
-                new ProblemDetails()
-                {
-                    Detail = "Código inválido ou expirado."
-                }
-            );
-        }
+        return Unauthorized(new ProblemDetails
+        {
+            Detail = "Código inválido ou expirado."
+        });
     }
 
     [HttpPatch]
-    public void ChangeUserPassword(
+    public IActionResult ChangeUserPassword(
         string email,
         string password,
         string confirmPassword,
@@ -104,7 +109,6 @@ public class LoginController(
             codigo
         );
 
-        HttpContext.Response.StatusCode = 200;
-        HttpContext.Response.WriteAsJsonAsync("sucesso");
+        return Ok("sucesso");
     }
 }
