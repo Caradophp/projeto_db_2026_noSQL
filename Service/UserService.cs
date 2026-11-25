@@ -1,3 +1,4 @@
+
 using System.Security.Cryptography;
 using projeto.Models;
 using projeto.Models.Enums;
@@ -53,37 +54,40 @@ public class UserService(
             Password = password
         };
 
-        return userRepository.CreateUser(user);
+        return _userRepository.CreateUser(user);
     }
 
     public User CheckUserLogin(string email, string password)
     {
-        User? user = userRepository.CheckUserLogin(email, password);
+        User? user = _userRepository.CheckUserLogin(email, password);
 
-        if (user != null)
+        if (user == null)
         {
-            if (user.Status.Equals(UserStatusEnum.Blocked))
-            {
-                throw new Exception("Usuário bloqueado");
-            }
-
-            if (user.Status.Equals(UserStatusEnum.Inactive))
-            {
-                throw new Exception("Usuário desativado");
-            }
-
-            return user;
+            throw new KeyNotFoundException("E-mail ou senha inválidos.");
         }
-        else
+
+        if (user.Status.Equals(UserStatusEnum.Blocked))
         {
-            throw new KeyNotFoundException("E-mail ou senha inválido");
+            throw new Exception("Usuário bloqueado.");
         }
+
+        if (user.Status.Equals(UserStatusEnum.Inactive))
+        {
+            throw new Exception("Usuário desativado.");
+        }
+
+        return user;
     }
 
     public void SendEmailForRetrivePassword(string email)
     {
-        User? user = _userRepository.FindByEmail(email) ?? throw new Exception("E-mail não cadastrado no sistema.");
-        
+        User? user = _userRepository.FindByEmail(email);
+
+        if (user == null || string.IsNullOrWhiteSpace(user.Id))
+        {
+            throw new Exception("E-mail não cadastrado no sistema.");
+        }
+
         int randomCode = RandomNumberGenerator.GetInt32(
             100000,
             1000000
@@ -124,7 +128,7 @@ public class UserService(
     {
         User? user = _userRepository.FindByEmail(email);
 
-        if (user == null)
+        if (user == null || string.IsNullOrWhiteSpace(user.Id))
         {
             return false;
         }
@@ -162,7 +166,7 @@ public class UserService(
 
         User? user = _userRepository.FindByEmail(email);
 
-        if (user == null)
+        if (user == null || string.IsNullOrWhiteSpace(user.Id))
         {
             throw new Exception(
                 "Não foi possível validar a recuperação de senha."
@@ -182,10 +186,7 @@ public class UserService(
             );
         }
 
-        _userRepository.ChangePass(
-            email,
-            password
-        );
+        _userRepository.ChangePass(email, password);
 
         _codeRepository.DeleteCodesByUser(user.Id);
     }
