@@ -37,8 +37,8 @@ public class SecurityFilter(Jwt jwt) : IAsyncActionFilter
         }
 
         // Extrai o token do header 'Authorization' (Padrão: Bearer <token>)
-        string authHeader = context.HttpContext.Request.Headers["Authorization"];
-        string token = null;
+        string authHeader = context.HttpContext.Request.Headers["Authorization"].ToString();
+        string? token = null;
 
         if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
         {
