@@ -1,23 +1,9 @@
-
 namespace projeto.Repository;
 
-public class HomeRepository(IConfiguration configuration)
+public class HomeRepository
 {
-    
     public Dictionary<string, int> GetRegisterNumbersPerTable()
     {
-        try
-        {
-            Dictionary<string, int> dictionaryToReturn = [];
-
-            
-
-            return dictionaryToReturn;
-            
-        } catch (Exception)
-        {
-            throw;
-        }
-    } 
-
+        return new Dictionary<string, int>();
+    }
 }

@@ -4,10 +4,10 @@ using projeto.Models;
 
 namespace projeto.Repository;
 
-public class CodeRepository(IConfiguration configuration)
+public class CodeRepository
 {
-
-    private readonly IMongoCollection<Code> _collection = new MongoClient(DotNetEnv.Env.GetString("MONGO_CONNECTION_STRING"))
+    private readonly IMongoCollection<Code> _collection =
+        new MongoClient(DotNetEnv.Env.GetString("MONGO_CONNECTION_STRING"))
         .GetDatabase("cultiva")
         .GetCollection<Code>("codes");
 
@@ -18,7 +18,7 @@ public class CodeRepository(IConfiguration configuration)
             Id = ObjectId.GenerateNewId().ToString(),
             Value = code,
             UserId = idUser,
-            ExpirationAt = DateTime.Now
+            ExpirationAt = DateTime.UtcNow.AddMinutes(10)
         };
 
         _collection.InsertOne(codeToSave);
@@ -26,17 +26,12 @@ public class CodeRepository(IConfiguration configuration)
 
     public bool CheckIfCodeIsValid(int code, string idUser)
     {
-        var codeFound = _collection.Find<Code>(c => c.Value == code && c.ExpirationAt > DateTime.Now)
+        return _collection.Find(c =>
+            c.Value == code &&
+            c.UserId == idUser &&
+            c.ExpirationAt > DateTime.UtcNow)
             .Limit(1)
-            .First();
-
-        if (codeFound != null)
-        {
-            return true;
-        } else
-        {
-            return false;
-        }
+            .Any();
     }
 
     public void DeleteCodesByUser(string idUser)

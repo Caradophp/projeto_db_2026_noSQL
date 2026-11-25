@@ -60,7 +60,7 @@ public class EncryptionService
         byte[] ciphertext = new byte[plaintextBytes.Length];
         byte[] tag = new byte[AesGcm.TagByteSizes.MaxSize];
 
-        using var aesGcm = new AesGcm(key);
+        using var aesGcm = new AesGcm(key, tag.Length);
         aesGcm.Encrypt(nonce, plaintextBytes, ciphertext, tag);
 
         // Formato de armazenamento: Nonce (12) + Tag (16) + Ciphertext
@@ -96,7 +96,7 @@ public class EncryptionService
 
         byte[] plaintextBytes = new byte[cipherSize];
 
-        using var aesGcm = new AesGcm(key);
+        using var aesGcm = new AesGcm(key, tag.Length);
         aesGcm.Decrypt(nonce, ciphertext, tag, plaintextBytes);
 
         return Encoding.UTF8.GetString(plaintextBytes);
