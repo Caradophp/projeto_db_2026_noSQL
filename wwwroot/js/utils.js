@@ -17,7 +17,7 @@ $(document).ready(() => {
 
         if (!token) {
 
-            if (location.pathname.toLowerCase().startsWith('user')) {
+            if (location.pathname.toLowerCase().startsWith('/user')) {
                 return;
             }
 
