@@ -16,7 +16,12 @@ $(document).ready(() => {
         const token = localStorage.getItem("token");
 
         if (!token) {
-            if (location.pathname.toLowerCase() !== '/login') {
+
+            if (location.pathname.toLowerCase().startsWith('user')) {
+                return;
+            }
+
+            if (!location.pathname.toLowerCase().startsWith('/login') ) {
                 location.href = '/login';
             }
             return;
