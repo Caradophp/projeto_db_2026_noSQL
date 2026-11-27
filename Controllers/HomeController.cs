@@ -63,4 +63,20 @@ public IActionResult CheckToken()
     {
         return Json(_homeService.GetRegisterNumbersPerTable());
     }
+
+    [HttpGet]
+    public IActionResult Search([FromQuery] string? term)
+    {
+        try
+        {
+            return Json(_homeService.Search(term));
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Detail = ex.Message
+            });
+        }
+    }
 }

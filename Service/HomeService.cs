@@ -25,4 +25,26 @@ public class HomeService(HomeRepository homeRepository)
 
         return returnList;
     }
+
+    public List<HomeSearchResult> Search(string? term)
+    {
+        if (string.IsNullOrWhiteSpace(term))
+        {
+            return [];
+        }
+
+        var normalizedTerm = term.Trim();
+
+        if (normalizedTerm.Length < 2)
+        {
+            return [];
+        }
+
+        if (normalizedTerm.Length > 100)
+        {
+            throw new ArgumentException("A pesquisa deve ter no máximo 100 caracteres.");
+        }
+
+        return _homeRepository.Search(normalizedTerm);
+    }
 }
