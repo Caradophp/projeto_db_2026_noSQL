@@ -1,0 +1,30 @@
+Nome do Estudante que Fez Essa Parte do Projeto da Aplicação: Miguel Batista de Sousa Borges
+Matrícula do Estudante: 25110390
+IA usada: GitHub Copilot no Modo Agent usado junto com a IDE Visual Studio Code
+
+1° Prompt (Análise da Estrutura do Projeto): "Quero que analise toda a estrtura desse projeto. Escaneie todos os diretórios, arquivos, etc. e busque entender o projeto como um todo de forma geral. Não faça absolutamente nenhuma modificação nos arquivos e pastas da estrutura desse projeto. Você deve apenas analisá-los e entender o que fazem e como funcionam. Após concluir a análise, quero que faça um pequeno relatório em forma de texto sem gerar arquivos de texto ou coisas similares resumindo em poucas linhas e em uma linguagem simples e de fácil entendimento sobre o que você conseguiu descorbrir sobre o projeto. Também quero que você gere um arquivo Prompts.md contendo e detalhando todos as informações, modificações, prompts, etc. que forem feitas por você e de forma completa. Você deverá atualizar esse arquivo Prompts.md a cada prompt enviado, adicionando e atualizando os conteúdos contidos nele com base nas tarefas realizadas. Você deve gerar esse arquivo Prompts.md no diretório raiz do projeto."
+
+Resposta da IA: "O Cultiva# é um sistema web de gestão agrícola feito em ASP.NET Core e MongoDB. Ele oferece telas para administrar propriedades, talhões, culturas, plantios, colheitas e insumos, além de login e recuperação de senha. O projeto também inclui arquivos de interface, imagens e dependências geradas pelo build.
+
+Encontrei alguns pontos aparentemente incompletos ou desatualizados: o README menciona Oracle, mas o código usa MongoDB; os números do painel vêm de um repositório que atualmente retorna dados vazios; e a tela de relatórios aponta para uma rota sem implementação identificada.
+
+Registrei a análise e o histórico deste pedido em Prompts.md. Ele foi o único arquivo criado; a alteração preexistente em .gitignore foi preservada. Não executei build ou testes."
+
+2° Prompt (Desenvolvimento de Métodos e Ajustes na Barra de Pesquisa da Aplicação Para Fazê-la Funcionar): "Muito bem. Após analisar toda a estrutura desse projeto, você deve ter descoberto que na tela da página principal da aplicação há uma barra de pesquisa no cabeçalho da página que não funciona. Quero que você faça o seguinte:
+
+"Desenvolva métodos nos arquivos HomeController, HomeService e no HomeRepository do projeto e ajuste o frontend do projeto para fazer essa barra de pesquisa funcionar".
+
+OBS1: Os arquivos do backend do projeto à serem modificados ou adicionados devem ser escritos usando a linguagem de programação C#. Quantos aos arquivos à serem modificados ou adicionados ao frontend do projeto, eles devem ser escritos usandos as linguagens de programação HTML, CSS e JavaScript.
+
+OBS2: Lembre-se também de atualizar o arquivo Prompts.md adcionando ou modificando as informações necessárias contidas nele com base na tarefa solicitada.
+
+OBS3: Neste momento, você tem permissão para modificar os arquivos necessários do projeto para realizar a tarefa solicitada.
+
+OBS4: Após concluir as modificações no projeto, quero que faça um pequeno relatório em forma de texto sem gerar arquivos de texto ou coisas similares resumindo em poucas linhas o que você fez no projeto, como arquivos que modificou, localizações deles, trechos de códigos que foram alterados ou adicionados e quaisquer outras informações relevantes que possam me nortear sobre o que você fez no projeto."
+
+Resposta da IA: "Implementei a busca global no cabeçalho. Ela pesquisa propriedades, talhões, culturas, plantios, colheitas, insumos e aplicações, mostrando resultados navegáveis e com suporte a teclado. Cada categoria retorna até cinco resultados; buscas com menos de dois caracteres não consultam o backend.
+
+Backend: adicionei o endpoint HomeController.Search, a validação e coordenação em HomeService.Search, as consultas MongoDB em HomeRepository.Search e o DTO HomeSearchResult.
+Frontend: atualizei o campo e a lista de resultados em _Layout.cshtml, os estilos em site.css e a interação em site.js.
+Histórico: atualizei Prompts.md com o pedido e os resultados.
+Validação: dotnet build passou sem avisos ou erros; a sintaxe JavaScript e git diff --check também passaram. Não testei a consulta contra uma instância MongoDB. A alteração preexistente em .gitignore foi preservada."

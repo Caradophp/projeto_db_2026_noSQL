@@ -152,10 +152,23 @@
                     <div class="topbar-search">
                         <i class="fa-solid fa-magnifying-glass"></i>
 
-                        <input type="text"
+                        <input type="search"
                                id="globalSearch"
                                placeholder="Buscar no sistema..."
-                               autocomplete="off" />
+                               autocomplete="off"
+                               maxlength="100"
+                               role="combobox"
+                               aria-autocomplete="list"
+                               aria-haspopup="listbox"
+                               aria-controls="globalSearchResults"
+                               aria-expanded="false" />
+
+                        <div class="topbar-search-results"
+                             id="globalSearchResults"
+                             role="listbox"
+                             aria-label="Resultados da pesquisa"
+                             hidden>
+                        </div>
                     </div>
 
                 </div>
